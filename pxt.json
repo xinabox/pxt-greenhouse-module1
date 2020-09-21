@@ -1,0 +1,62 @@
+{
+    "name": "pxt-greenhouse-module-1",
+    "version": "0.0.16",
+    "description": "",
+    "dependencies": {
+        "core": "*",
+        "radio": "*"
+    },
+    "files": [
+        "README.md",
+        "greenhouse.ts",
+        "parallel.h",
+        "parallel.cpp",
+        "FATDirHandle.cpp",
+        "FATDirHandle.h",
+        "FATFileHandle.cpp",
+        "FATFileHandle.h",
+        "FATFileSystem.cpp",
+        "FATFileSystem.h",
+        "SDFileSystem.cpp",
+        "SDFileSystem.h",
+        "ccsbcs.cpp",
+        "diskio.cpp",
+        "diskio.h",
+        "ff.h",
+        "ffconf.h",
+        "ff.cpp",
+        "integer.h",
+        "im01.cpp"
+    ],
+    "testFiles": [
+        "test.ts"
+    ],
+    "public": true,
+    "supportedTargets": [
+        "microbit"
+    ],
+    "preferredEditor": "tsprj",
+    "yotta": {
+        "config": {
+            "microbit-dal": {
+                "bluetooth": {
+                    "private_addressing": 0,
+                    "advertising_timeout": 0,
+                    "tx_power": 0,
+                    "dfu_service": 0,
+                    "event_service": 0,
+                    "device_info_service": 0,
+                    "eddystone_url": 0,
+                    "eddystone_uid": 0,
+                    "open": 0,
+                    "pairing_mode": 0,
+                    "whitelist": 1,
+                    "security_level": "SECURITY_MODE_ENCRYPTION_NO_MITM",
+                    "partial_flashing": 1,
+                    "enabled": 0
+                }
+            }
+        }
+    },
+    "panic_on_heap_full": 0
+}
