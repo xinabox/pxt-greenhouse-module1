@@ -933,8 +933,8 @@ namespace greenhouse
     }
 
     function checkID(): void {
-        if (getreg(0x00, SI1145_I2C_ADDR) == 0x45) v2 = 1;
-        else if (readVEML(0x0C) == (0x26 & 0x0026)) v1 = 1;
+        if (getreg(0x00, SI1145_I2C_ADDR) == 0x45){ v2 = 1; basic.showString("Hello! New SL01")}
+        else if (readVEML(0x0C) == (0x26 & 0x0026)){ v1 = 1; basic.showString("Hello! Old SL01")}
     }
 
     /**
