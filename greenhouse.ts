@@ -216,6 +216,16 @@ namespace greenhouse
 
     // SW01 Variables end
 
+    // SW07 Variables start
+
+    let ADC_I2C_ADDRESS = 0x59
+    let ADC_REG_CONF = 0x02
+    let ADC_CONF_CYC_TIME_256 = 0x80
+    let ADC_REG_RESULT = 0x00
+    let voltage = 0.0
+
+    // SW07 Variables end
+
     // SG33 Variables start
 
     let SG33_ADDR = 0x5A
@@ -239,6 +249,12 @@ namespace greenhouse
     // SH01 function call start
     _readkey()
     // SH01 function call end
+
+    // SW07 function call start
+
+    setreg(ADC_REG_CONF, ADC_CONF_CYC_TIME_256, ADC_I2C_ADDRESS)
+
+    // SW07 function call end
 
     // SG33 function call start
 
@@ -533,6 +549,35 @@ namespace greenhouse
         return tempbuf;
     }
 
+    function readVoltage()
+    {
+        let data: NumberFormat.UInt16LE;
+        let a: NumberFormat.UInt8LE
+        let b: NumberFormat.UInt8LE
+
+	    data = getUInt16BE(ADC_REG_RESULT, ADC_I2C_ADDRESS)
+
+	    a = (data & 0xFF00) >> 8
+	    b = (data & 0x00FF) >> 0
+
+	    voltage = ((((a & 0x0F)*256) + (b & 0xF0))/0x10)*(3.3/256);
+    }
+
+    function getVoltage()
+    {
+        readVoltage()
+        return voltage
+    }
+
+    //% blockId=getMoisture 
+    //% block="SW07 get moisture"
+    //% group="SW07"
+    export function getMoisture(): number
+    {
+        let value = getVoltage()
+        return pins.map(value, 0, 2.63, 0, 100)
+    }
+
     // checks if the SG33 has new data available
     function dataAvailable(): boolean {
         let status = getreg(0x00, SG33_ADDR);
@@ -551,6 +596,32 @@ namespace greenhouse
 
         eCO2_ = (buf[0] << 8) | (buf[1]);
         TVOC_ = (buf[2] << 8) | (buf[3]);
+    }
+
+    /**
+     * Volatile organic compounds (VOCs)
+     * https://en.wikipedia.org/wiki/Volatile_organic_compound
+     * @param u the pressure unit
+     */
+    //% block="SG33 TVOC"
+    //% group="SG33"
+    //% weight=84 blockGap=8
+    export function TVOC(): number {
+        getSG33();
+        return TVOC_;
+    }
+
+    /**
+     * The temperature in degrees Celcius or Fahrenheit
+     * https://en.wikipedia.org/wiki/Carbon_dioxide
+     * https://en.wikipedia.org/wiki/Carbon_dioxide_sensor#Estimated_CO2_sensor
+     */
+    //% block="SG33 eCO2"
+    //% group="SG33"
+    //% weight=88 blockGap=8
+    export function eCO2(): number {
+        getSG33();
+        return eCO2_;
     }
 
     // get new sensor data from SG33
