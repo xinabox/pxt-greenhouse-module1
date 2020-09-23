@@ -937,7 +937,7 @@ namespace greenhouse
         else if (readVEML(0x0C) == (0x26 & 0x0026)) v1 = 1;
     }
 
-        /**
+    /**
     * The ultraviolet index
     * https://en.wikipedia.org/wiki/Ultraviolet_index
     */
@@ -969,6 +969,7 @@ namespace greenhouse
     export function getLUX(u: SL01_L): number {
         let val = 0;
         if (v1) {
+            basic.showString("SL01 old")
             init()
             let byteH = readTSL(0x85);
             let byteL = readTSL(0x84);
@@ -978,6 +979,7 @@ namespace greenhouse
         }
 
         if (v2) {
+            basic.showString("SL01 new")
             if (u == SL01_L.LX) {
                 val = getUInt16LE(0x22, SI1145_I2C_ADDR)
             } else if (u == SL01_L.FC) {
