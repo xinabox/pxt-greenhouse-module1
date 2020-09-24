@@ -235,7 +235,6 @@ namespace greenhouse
         CENTIMETER = 2
     }
 
-    let SI1145_I2C_ADDR = 0x60
     let TSL_I2C_ADDR = 0x29
     let VEML_I2C_ADDR = 0x10
 
@@ -309,11 +308,6 @@ namespace greenhouse
         setreg(0xF5, 0x0C, SW01_ADDR) // set time constant of the IIR filter to 250 ms
 
     // SW01 function call end
-
-    // SL01 function call start
-    checkID();
-    if (v2) begin();
-    // SL01 function call end
 
     // SH01 function call start
     _readkey()
@@ -852,91 +846,6 @@ namespace greenhouse
     }
 
 
-    function writeParam(p: number, v: number) {
-        setreg(0x17, v, SI1145_I2C_ADDR)
-        setreg(0x18, p | 0xA0, SI1145_I2C_ADDR)
-
-        return getreg(0x2E, SI1145_I2C_ADDR);
-    }
-
-    function reset(): void {
-        setreg(0x08, 0x00, SI1145_I2C_ADDR)
-        setreg(0x09, 0x00, SI1145_I2C_ADDR)
-        setreg(0x04, 0x00, SI1145_I2C_ADDR)
-        setreg(0x05, 0x00, SI1145_I2C_ADDR)
-        setreg(0x06, 0x00, SI1145_I2C_ADDR)
-        setreg(0x03, 0x00, SI1145_I2C_ADDR)
-        setreg(0x21, 0xFF, SI1145_I2C_ADDR)
-
-        setreg(0x18, 0x01, SI1145_I2C_ADDR)
-        basic.pause(10)
-        setreg(0x07, 0x17, SI1145_I2C_ADDR)
-        basic.pause(10)
-    }
-
-    function begin(): void {
-        let id: number = getreg(0x00, SI1145_I2C_ADDR)
-
-        if (id != 0x45) console.log("SL01 not connected")
-
-        reset()
-
-        // enable UVindex measurement coefficients!
-        setreg(0x13, 0x29, SI1145_I2C_ADDR);
-        setreg(0x14, 0x89, SI1145_I2C_ADDR);
-        setreg(0x15, 0x02, SI1145_I2C_ADDR);
-        setreg(0x16, 0x00, SI1145_I2C_ADDR);
-
-        // enable UV sensor
-        writeParam(0x01, 0x80 | 0x20 | 0x10 | 0x01);
-        // enable interrupt on every sample
-        setreg(0x03, 0x01, SI1145_I2C_ADDR);
-        setreg(0x04, 0x01, SI1145_I2C_ADDR);
-
-
-        /****************************** Prox Sense 1 */
-        // program LED current
-        setreg(0x0F, 0x03, SI1145_I2C_ADDR); // 20mA for LED 1 only
-        writeParam(0x07, 0x03);
-        // prox sensor #1 uses LED #1
-        writeParam(0x02, 0x01);
-        // fastest clocks, clock div 1
-        writeParam(0x0B, 0);
-        // take 511 clocks to measure
-        writeParam(0x0A, 0x70);
-        // in prox mode, high range
-        writeParam(0x0C, 0x20 | 0x04);
-
-        writeParam(0x0E, 0x00);
-        // fastest clocks, clock div 1
-        writeParam(0x1E, 0);
-        // take 511 clocks to measure
-        writeParam(0x1D, 0x70);
-        // in high range mode
-        writeParam(0x1F, 0x20);
-
-        // fastest clocks, clock div 1
-        writeParam(0x11, 0);
-        // take 511 clocks to measure
-        writeParam(0x10, 0x70);
-        // in high range mode (not normal signal)
-        writeParam(0x12, 0x20);
-
-
-        /************************/
-
-        // measurement rate for auto
-        setreg(0x08, 0xFF, SI1145_I2C_ADDR); // 255 * 31.25uS = 8ms
-
-        // auto run
-        setreg(0x18, 0x0F, SI1145_I2C_ADDR);
-    }
-
-    function checkID(): void {
-        if (getreg(0x00, SI1145_I2C_ADDR) == 0x45){ v2 = 1; basic.showString("Hello! New SL01")}
-        else if (readVEML(0x0C) == (0x26 & 0x0026)){ v1 = 1; basic.showString("Hello! Old SL01")}
-    }
-
     /**
     * The ultraviolet index
     * https://en.wikipedia.org/wiki/Ultraviolet_index
@@ -946,14 +855,9 @@ namespace greenhouse
     //% weight=90 blockGap=8
     export function getUVI(): number {
         let val = 0;
-        if (v1) {
-            init();
-            val = fix(getUVIdata());
-        }
+        init();
+        val = fix(getUVIdata());
 
-        if (v2) {
-            val = (getUInt16LE(0x2C, SI1145_I2C_ADDR) / 100);
-        }
         return val;
     }
 
@@ -968,24 +872,13 @@ namespace greenhouse
     //% Lux.min=4 Lux.max=220000
     export function getLUX(u: SL01_L): number {
         let val = 0;
-        if (v1) {
-            basic.showString("SL01 old")
-            init()
-            let byteH = readTSL(0x85);
-            let byteL = readTSL(0x84);
-            let lux = (4 * ((byteH << 8) | byteL));
-            if (u == SL01_L.LX) val = lux;
-            else val = (lux / 10.764);
-        }
-
-        if (v2) {
-            basic.showString("SL01 new")
-            if (u == SL01_L.LX) {
-                val = getUInt16LE(0x22, SI1145_I2C_ADDR)
-            } else if (u == SL01_L.FC) {
-                val = (getUInt16LE(0x22, SI1145_I2C_ADDR) / 10.764)
-            }
-        }
+        init()
+        let byteH = readTSL(0x85);
+        let byteL = readTSL(0x84);
+        let lux = (4 * ((byteH << 8) | byteL));
+        if (u == SL01_L.LX) val = lux;
+        else val = (lux / 10.764);
+        
         return val;
     }
 
