@@ -1,12 +1,14 @@
 {
-    "name": "pxt-greenhouse-module-1",
-    "version": "0.1.8",
-    "description": "",
+    "name": "Greenhouse kit",
+    "version": "0.1.9",
+    "description": "Greenhouse kit module1",
+    "license": "MIT",
     "dependencies": {
-        "core": "*"
+        "core": "*",
+        "microphone": "*"
     },
     "files": [
-        "README.md",
+       "README.md",
         "greenhouse.ts",
         "parallel.h",
         "parallel.cpp",
@@ -25,7 +27,15 @@
         "ffconf.h",
         "ff.cpp",
         "integer.h",
-        "im01.cpp"
+        "im01.cpp",
+        "xSL01.h",
+        "xSL01.cpp",
+        "xSG33.cpp",
+        "xSG33.h",
+        "si1133_config.h",
+        "shims.d.ts",
+        "enums.d.ts",
+		"main.ts"
     ],
     "testFiles": [
         "test.ts"
@@ -57,8 +67,8 @@
             }
         }
     },
-    "panic_on_heap_full": 0,
-    "disablesVariants": [
+	
+	"disablesVariants": [
         "mbcodal"
     ]
 }
