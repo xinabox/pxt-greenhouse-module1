@@ -8,7 +8,7 @@
         "microphone": "*"
     },
     "files": [
-       "README.md",
+        "README.md",
         "greenhouse.ts",
         "parallel.h",
         "parallel.cpp",
@@ -34,8 +34,7 @@
         "xSG33.h",
         "si1133_config.h",
         "shims.d.ts",
-        "enums.d.ts",
-		"main.ts"
+        "enums.d.ts"
     ],
     "testFiles": [
         "test.ts"
@@ -67,8 +66,7 @@
             }
         }
     },
-	
-	"disablesVariants": [
+    "disablesVariants": [
         "mbcodal"
     ]
 }
